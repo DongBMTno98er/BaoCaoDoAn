@@ -1,0 +1,58 @@
+//<--chèn dữ liệu vào bảng-->
+INSERT { _key: "9915", name: "Dong", age: 24 } INTO user
+INSERT { _key: "9916", name: "Viet", age: 20 } INTO user
+INSERT { _key: "9917", name: "Hiep", age: 20 } INTO user
+INSERT { _key: "9918", name: "Van", age: 20 } INTO user
+INSERT { _key: "9919", name: "Tuan", age: 20 } INTO user
+//trả về dữ liệu có trong collection
+RETURN DOCUMENT( ["user/9915", "user/9916", "user/9917"] )
+//trả vè danh sách tất cả dữ liệu có trong collection
+FOR user1 IN user
+  RETURN user1
+//sắp xếp dữ liệu thông qua các key
+FOR user1 IN user
+  SORT user1._key
+  RETURN user1
+  //sắp xếp dữ liệu thông qua trường tuổi
+  FOR user1 IN user
+  SORT user1.age
+  RETURN user1
+  //lọc dữ liệu theo độ tuổi
+  FOR user1 IN user
+  FILTER user1.age > 20
+  SORT user1.age
+  RETURN user1
+  //cập nhật dữ liệu trường tuổi cho đối tượng có key 9915 trong collection user
+  UPDATE "9915" WITH { age: 40 } IN user
+  //nối thành chuỗi
+  FOR user1 IN user
+  RETURN CONCAT(user1.name, "'s age is ", user1.age)
+//so sanh cac cap tuoi khac nhau
+  FOR user1 IN user
+  FOR user2 IN user
+    FILTER user1 != user2
+    RETURN [user1.name, user2.name]
+//lọc ra tuôi trung bình 2 đối tượng khác nhau
+FOR user1 IN user
+  FOR user2 IN user
+    FILTER user1 != user2
+    RETURN {
+        pair: [user1.name, user2.name],
+        sumOfAges: user1.age + user2.age
+    }
+//
+FOR user1 IN user
+  FOR user2 IN user
+    FILTER user1 != user2
+    LET sumOfAges = user1.age + user2.age
+    FILTER sumOfAges < 50
+    RETURN {
+        pair: [user1.name, user2.name],
+        sumOfAges: sumOfAges
+    }
+//xóa dữ liệu có key 99
+REMOVE "99" IN user
+//xoa co dieu kien
+FOR user1 IN user
+    FILTER user1.age >= 30
+    REMOVE user1 IN user
